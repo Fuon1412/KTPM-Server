@@ -1,0 +1,37 @@
+services:
+  web-server:
+    container_name: web_server
+    build:
+      context: .
+      dockerfile: api.Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - sql-server
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    restart: always
+
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: web_database
+    environment:
+      SA_PASSWORD: "Hiurakawaii@1412"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+    restart: always
+    healthcheck:
+      test: ["CMD", "/bin/bash", "-c", "echo > /dev/tcp/localhost/1433"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  sql_data:
+    name: sql_data
