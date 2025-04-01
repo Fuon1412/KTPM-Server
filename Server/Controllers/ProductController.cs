@@ -4,11 +4,12 @@ using Server.DTOs.Product;
 using Server.Enums.ErrorCodes;
 using Server.Interfaces.IServices;
 using Server.Middlewares;
+using Server.Models.Product;
 
 namespace Server.Controllers
 {
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     public class ProductController : ControllerBase
     {
@@ -77,9 +78,47 @@ namespace Server.Controllers
         }
 
         [HttpGet("/product")]
-        public async Task<IActionResult> GetAProduct()
+        public async Task<IActionResult> GetAProduct(Guid id)
         {
+            try
+            {
+                ProductModel? product = await _productService.GetProductAsync(id);
 
+                return Ok(product);
+            }
+            catch (ProductExceptions ex)
+            {
+                return ex.ErrorCode switch
+                {
+                    ProductErrorCode.UnknownError => BadRequest(new { message = "Unknown Error" }),
+                    _ => BadRequest(new { message = "Unexpected Error" })
+                };
+            }
+        }
+        [HttpPut("update-product")]
+        public async Task<IActionResult> UpdateAProduct(Guid id, UpdateProductDTO model)
+        {
+            try
+            {
+                ProductModel? product = await _productService.GetProductAsync(id);
+
+                if (product == null)
+                {
+                    return BadRequest(new { message = "Product not found" });
+                }
+
+                await _productService.UpdateProduct(id, model);
+                return Ok(new { message = "Update profile successful" });
+
+            }
+            catch (ProductExceptions ex)
+            {
+                return ex.ErrorCode switch
+                {
+                    ProductErrorCode.UnknownError => BadRequest(new { message = "Unknown Error" }),
+                    _ => BadRequest(new { message = "Unexpected Error" })
+                };
+            }
         }
     }
 }
