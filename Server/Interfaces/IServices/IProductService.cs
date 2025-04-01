@@ -9,7 +9,7 @@ namespace Server.Interfaces.IServices
         Task UpdateProduct(Guid productId,
                            UpdateProductDTO model
                            );
-        Task<GetProductDTO> GetProductAsync(Guid productId);
+        Task<ProductModel> GetProductAsync(Guid productId);
         Task DeleteProductAsync(Guid productId);
         Task<List<ProductModel>> GetListProductsAsync();
     }
