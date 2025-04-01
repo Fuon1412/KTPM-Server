@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Server.Models.Account;
 using Server.Models.Device;
+using Server.Models.Product;
 using Server.Models.Room;
 using Server.Models.User;
 
@@ -24,6 +25,8 @@ namespace Server.Data
         public DbSet<RoomModel> Rooms { get; set; }
         public DbSet<DeviceModel> Devices { get; set; }
 
+        public DbSet<ProductModel> Products { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -39,6 +42,7 @@ namespace Server.Data
                     .WithMany(r => r.Devices)
                     .HasForeignKey(d => d.RoomId)
                     .IsRequired();
+            modelBuilder.Entity<ProductModel>();
         }
     }
 }
