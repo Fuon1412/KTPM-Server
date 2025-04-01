@@ -61,22 +61,12 @@ namespace Server.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<GetProductDTO> GetProductAsync(Guid productId)
+        public async Task<ProductModel> GetProductAsync(Guid productId)
         {
             var product = await _context.Products
                                         .FirstOrDefaultAsync(a => a.Id == productId)
                                         ?? throw new ProductExceptions(ProductErrorCode.ProductNotFound, "Product not found");
-            return new GetProductDTO
-            {
-                Name = product.Name,
-                Brand = product.Brand ?? string.Empty,
-                Description = product.Description ?? string.Empty,
-                Category = product.Category ?? string.Empty,
-                Price = product.Price,
-                Stock = product.Stock,
-                Image = product.Image ?? string.Empty
-            };
-
+            return product;
 
         }
 
@@ -96,14 +86,5 @@ namespace Server.Services
             return products ?? throw new ProductExceptions(ProductErrorCode.UnknownError, "Unknown Error");
         }
 
-        public async Task<ProductModel> GetAProductAsync(Guid productId)
-        {
-
-            var product = await _context.Products.FirstOrDefaultAsync(a => a.Id == productId)
-            ?? throw new ProductExceptions(ProductErrorCode.ProductNotFound, "Product not found");
-
-            return product ?? throw new ProductExceptions(ProductErrorCode.UnknownError, "Unknown Error");
-
-        }
     }
 }
