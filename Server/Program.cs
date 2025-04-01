@@ -24,6 +24,7 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IBcryptService, BcryptService>();
 builder.Services.AddSingleton<JwtUtils>(provider =>
 {
