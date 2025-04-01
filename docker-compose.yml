@@ -1,6 +1,6 @@
 services:
   web-server:
-    container_name: web_server
+    container_name: luxury_web_management_web
     build:
       context: .
       dockerfile: api.Dockerfile
@@ -15,7 +15,7 @@ services:
 
   sql-server:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: web_database
+    container_name: luxury_web_management_DB
     environment:
       SA_PASSWORD: "Hiurakawaii@1412"
       ACCEPT_EULA: "Y"
