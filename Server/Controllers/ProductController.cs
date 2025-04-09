@@ -32,7 +32,11 @@ namespace Server.Controllers
             {
                 return ex.ErrorCode switch
                 {
-                    ProductErrorCode.UnknownError => BadRequest(new { message = "Unknown Error" }),
+                    ProductErrorCode.UnknownError => BadRequest(new
+                    {
+                        errorCode = "P1",
+                        message = "Unknown Error"
+                    }),
                     _ => BadRequest(new { message = "Unexpected Error" })
                 };
             }
@@ -52,7 +56,11 @@ namespace Server.Controllers
                 return ex.ErrorCode switch
                 {
                     ProductErrorCode.UnknownError =>
-                    BadRequest(new { message = "Unknown Error" }),
+                    BadRequest(new
+                    {
+                        erroCode = "P2",
+                        message = "Unknown Error"
+                    }),
                     _ => BadRequest(new { message = "Failed to create a product" })
                 };
             }
@@ -71,7 +79,11 @@ namespace Server.Controllers
                 return ex.ErrorCode switch
                 {
                     ProductErrorCode.UnknownError =>
-                    BadRequest(new { message = "Unknown Error" }),
+                    BadRequest(new
+                    {
+                        errorCode = "P3",
+                        message = "Unknown Error"
+                    }),
                     _ => BadRequest(new { message = "Failed to delete a product" })
                 };
             }
@@ -90,13 +102,17 @@ namespace Server.Controllers
             {
                 return ex.ErrorCode switch
                 {
-                    ProductErrorCode.UnknownError => BadRequest(new { message = "Unknown Error" }),
+                    ProductErrorCode.UnknownError => BadRequest(new
+                    {
+                        errorCode = "P4",
+                        message = "Unknown Error"
+                    }),
                     _ => BadRequest(new { message = "Unexpected Error" })
                 };
             }
         }
         [HttpPut("update-product")]
-        public async Task<IActionResult> UpdateAProduct(Guid id, UpdateProductDTO model)
+        public async Task<IActionResult> UpdateAProduct(Guid id, ProductModel model)
         {
             try
             {
@@ -107,7 +123,7 @@ namespace Server.Controllers
                     return BadRequest(new { message = "Product not found" });
                 }
 
-                await _productService.UpdateProduct(id, model);
+                await _productService.UpdateProduct(model);
                 return Ok(new { message = "Update profile successful" });
 
             }
