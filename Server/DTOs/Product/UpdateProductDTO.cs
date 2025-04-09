@@ -5,6 +5,7 @@ namespace Server.DTOs.Product
 {
     public class UpdateProductDTO
     {
+        public Guid Id { get; set; }
         [Required(ErrorMessage = "Product's name is required")]
         [StringLength(50, ErrorMessage = "Product's Name cannot exceed 50 characters.")]
         public required string Name { get; set; }
