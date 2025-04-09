@@ -1,4 +1,6 @@
 using Server.Models.Account;
+using Server.Models.Order;
+using Server.Models.Product;
 using Server.Models.User;
 using Server.Services;
 
@@ -41,7 +43,6 @@ namespace Server.Data
                             Id = userId,
                             FirstName = GetRandomFirstName(),
                             LastName = GetRandomLastName(),
-                            Business = GetRandomSpecialization(),
                             DateOfBirth = GenerateRandomDateOfBirth(),
                             AccountId = accountId
                         }
@@ -52,30 +53,6 @@ namespace Server.Data
             }
 
             return accounts;
-        }
-
-        private static AccountModel CreateAccount(string email, string role)
-        {
-            var accountId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
-
-            return new AccountModel
-            {
-                Id = accountId,
-                Email = email,
-                Password = _bcryptService.HashPassword("123456"), // Hashed password
-                Role = role,
-                IsActivated = true, // Mặc định tất cả tài khoản được kích hoạt
-                User = new UserModel
-                {
-                    Id = userId,
-                    FirstName = GetRandomFirstName(),
-                    LastName = GetRandomLastName(),
-                    Business = GetRandomSpecialization(),
-                    DateOfBirth = GenerateRandomDateOfBirth(),
-                    AccountId = accountId
-                }
-            };
         }
 
         private static string GetRandomFirstName()
@@ -97,16 +74,6 @@ namespace Server.Data
             return lastNames[new Random().Next(lastNames.Length)];
         }
 
-        private static string GetRandomSpecialization()
-        {
-            string[] specializations = {
-                "Huấn luyện Cardio", "Yoga", "Gym Fitness",
-                "Pilates", "Zumba", "Strength Training",
-                "Spinning", "Personal Training", "No Specialization"
-            };
-            return specializations[new Random().Next(specializations.Length)];
-        }
-
         private static DateTime GenerateRandomDateOfBirth()
         {
             Random random = new Random();
@@ -114,5 +81,113 @@ namespace Server.Data
             int range = (DateTime.Today.AddYears(-18) - start).Days;
             return start.AddDays(random.Next(range));
         }
+
+        public static List<ProductModel> GetProductSeedData()
+        {
+            string[] productNames = {
+            "Luxury Bag", "Koenigsegg Jesko",
+            "Rolex Watch", "Gucci Shoes", "iPhone 13 Pro",
+            "Macbook Pro", "Samsung Galaxy S21", "Sony PS5"
+        };
+
+            string[] brands = {
+            "Louis Vuitton", "Koenigsegg", "Rolex", "Gucci",
+            "Apple", "Apple", "Samsung", "Sony"
+        };
+
+            string[] categories = {
+            "Fashion", "Vehicles", "Accessories", "Fashion",
+            "Smartphones", "Laptops", "Smartphones", "Gaming"
+        };
+
+            decimal[] prices = {
+            1500m, 3000000m, 12000m, 800m, 999m, 2000m, 799m, 499m
+        };
+
+            List<ProductModel> products = new List<ProductModel>();
+
+            for (int i = 0; i < productNames.Length; i++)
+            {
+                products.Add(new ProductModel
+                {
+                    Id = Guid.NewGuid(),
+                    Name = productNames[i],
+                    Brand = brands[i],
+                    Description = $"{productNames[i]} from {brands[i]}",
+                    Price = prices[i],
+                    Category = categories[i],
+                    Image = $"{productNames[i].ToLower().Replace(" ", "_")}.jpg",
+                    Stock = new Random().Next(5, 50)
+                });
+            }
+
+            return products;
+        }
+        public static List<OrderModel> GetOrderSeedData(List<ProductModel> products, List<AccountModel> accounts)
+        {
+            var orders = new List<OrderModel>();
+            var random = new Random();
+
+            // Get some users (Members) to create orders
+            var memberUsers = accounts
+                .Where(a => a.Role == "Member")
+                .Select(a => a.User)
+                .ToList();
+
+            for (int i = 0; i < 10; i++) // Seed 10 orders
+            {
+                var user = memberUsers[random.Next(memberUsers.Count)];
+                var orderId = Guid.NewGuid();
+                int numberOfItems = random.Next(1, 4); // Each order has 1–3 items
+
+                var orderItems = new List<OrderItemModel>();
+                decimal itemPrice = 0;
+                decimal itemShippingFee = 0;
+
+                var selectedProducts = products.OrderBy(x => random.Next()).Take(numberOfItems).ToList();
+
+                foreach (var product in selectedProducts)
+                {
+                    var quantity = random.Next(1, 3);
+                    var price = product.Price;
+                    var shippingFee = 9.99m;
+
+                    orderItems.Add(new OrderItemModel
+                    {
+                        Id = Guid.NewGuid(),
+                        OrderId = orderId,
+                        ProductId = product.Id,
+                        Quantity = quantity,
+                        ItemShippingFee = shippingFee
+                    });
+
+                    itemPrice += price * quantity;
+                    itemShippingFee += shippingFee;
+                }
+
+                var discount = random.Next(0, 2) == 0 ? 0 : 10m;
+                var tax = itemPrice * 0.1m;
+                var totalPrice = itemPrice - discount + tax + itemShippingFee;
+
+                orders.Add(new OrderModel
+                {
+                    Id = orderId,
+                    UserId = user.Id,
+                    ShippingInfo = "123 Test Street, Hanoi",
+                    ShippingStatus = "Pending",
+                    PaymentMethod = "CreditCard",
+                    PaymentStatus = "Pending",
+                    CreatedAt = DateTime.UtcNow.AddDays(-random.Next(0, 30)),
+                    Tax = tax,
+                    Discount = discount,
+                    ShippingFee = itemShippingFee,
+                    TotalPrice = totalPrice,
+                    OrderItems = orderItems
+                });
+            }
+
+            return orders;
+        }
+
     }
 }

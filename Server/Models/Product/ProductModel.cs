@@ -2,9 +2,7 @@
 {
     public class ProductModel
     {
-        /// <example> 12312321 </example>
         public Guid Id { get; set; }
-        /// <example> Test </example>
         public required string Name { get; set; }
         public string? Brand { get; set; }
         public string? Description { get; set; }

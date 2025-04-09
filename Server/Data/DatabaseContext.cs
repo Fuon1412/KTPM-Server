@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Server.Models.Account;
 using Server.Models.Device;
+using Server.Models.Order;
 using Server.Models.Product;
+using Server.Models.Review;
 using Server.Models.Room;
 using Server.Models.User;
 
@@ -22,10 +24,10 @@ namespace Server.Data
         public DbSet<UserModel> Users { get; set; }
 
         // Dbset for Facility
-        public DbSet<RoomModel> Rooms { get; set; }
-        public DbSet<DeviceModel> Devices { get; set; }
 
         public DbSet<ProductModel> Products { get; set; }
+        public DbSet<ReviewModel> Reviews { get; set; }
+        public DbSet<OrderModel> Orders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -33,16 +35,15 @@ namespace Server.Data
 
             modelBuilder.Entity<AccountModel>()
                     .HasOne(a => a.User)
-                    .WithMany() 
-                    .HasForeignKey("AccountId") 
+                    .WithMany()
+                    .HasForeignKey("AccountId")
                     .IsRequired();
 
-            modelBuilder.Entity<DeviceModel>()
-                    .HasOne(d => d.Room)
-                    .WithMany(r => r.Devices)
-                    .HasForeignKey(d => d.RoomId)
-                    .IsRequired();
             modelBuilder.Entity<ProductModel>();
+            modelBuilder.Entity<ReviewModel>();
+            modelBuilder.Entity<OrderModel>();
+            modelBuilder.Entity<OrderItemModel>();
+
         }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Server.Data;
 
@@ -11,9 +12,11 @@ using Server.Data;
 namespace Server.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20250401180550_InitReviewsAndOrders")]
+    partial class InitReviewsAndOrders
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,14 +86,11 @@ namespace Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("ItemShippingFee")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("OrderModelId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<decimal>("PriceAtPurchase")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
@@ -100,7 +100,9 @@ namespace Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderModelId");
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("OrderItemModel");
                 });
@@ -124,6 +126,9 @@ namespace Server.Migrations
                     b.Property<string>("PaymentStatus")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<decimal>("ShippingFee")
                         .HasColumnType("decimal(18,2)");
 
@@ -144,6 +149,8 @@ namespace Server.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Orders");
                 });
@@ -250,9 +257,32 @@ namespace Server.Migrations
 
             modelBuilder.Entity("Server.Models.Order.OrderItemModel", b =>
                 {
-                    b.HasOne("Server.Models.Order.OrderModel", null)
+                    b.HasOne("Server.Models.Order.OrderModel", "Order")
                         .WithMany("OrderItems")
-                        .HasForeignKey("OrderModelId");
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Server.Models.Product.ProductModel", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Server.Models.Order.OrderModel", b =>
+                {
+                    b.HasOne("Server.Models.User.UserModel", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Server.Models.Review.ReviewModel", b =>

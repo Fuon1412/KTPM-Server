@@ -8,6 +8,8 @@ using Server.Interfaces.IServices;
 using Server.Utils;
 using System.Text;
 using Server.Middlewares;
+using Server.Models.Account;
+using Server.Models.Product;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +27,7 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrderService, OrderServices>();
 builder.Services.AddScoped<IBcryptService, BcryptService>();
 builder.Services.AddSingleton<JwtUtils>(provider =>
 {
@@ -120,6 +123,8 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<DatabaseContext>();
+    List<AccountModel> seedAccounts = new();
+    List<ProductModel> seedProducts = new();
 
     // Tự động chạy migration
     context.Database.Migrate();
@@ -127,10 +132,24 @@ using (var scope = app.Services.CreateScope())
     // Kiểm tra và seed data nếu database rỗng
     if (!context.Accounts.Any())  // Kiểm tra xem bảng Account có dữ liệu chưa
     {
-        var seedAccounts = SeedData.GetAccountSeedData();
+        seedAccounts = SeedData.GetAccountSeedData();
         context.Accounts.AddRange(seedAccounts);
         context.SaveChanges();
         Console.WriteLine("Database seeded successfully!");
+    }
+    if (!context.Products.Any())
+    {
+        seedProducts = SeedData.GetProductSeedData();
+        context.Products.AddRange(seedProducts);
+        context.SaveChanges();
+        Console.WriteLine("Database seeded successfully!");
+    }
+    if (!context.Orders.Any())
+    {
+        var seedOrders = SeedData.GetOrderSeedData(seedProducts, seedAccounts);
+        context.Orders.AddRange(seedOrders);
+        context.SaveChanges();
+        Console.WriteLine("Orders seeded successfully!");
     }
 }
 app.UseCors("AllowAllOrigins");

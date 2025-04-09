@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Server.Data;
 
@@ -11,9 +12,11 @@ using Server.Data;
 namespace Server.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20250409135718_FixOrdersv0.2")]
+    partial class FixOrdersv02
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -86,13 +89,13 @@ namespace Server.Migrations
                     b.Property<decimal>("ItemShippingFee")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("OrderModelId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ProductId")
+                    b.Property<decimal>("PriceAtPurchase")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid?>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Quantity")
@@ -101,6 +104,8 @@ namespace Server.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OrderModelId");
+
+                    b.HasIndex("ProductId");
 
                     b.ToTable("OrderItemModel");
                 });
@@ -253,6 +258,12 @@ namespace Server.Migrations
                     b.HasOne("Server.Models.Order.OrderModel", null)
                         .WithMany("OrderItems")
                         .HasForeignKey("OrderModelId");
+
+                    b.HasOne("Server.Models.Product.ProductModel", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Server.Models.Review.ReviewModel", b =>
