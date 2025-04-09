@@ -38,14 +38,12 @@ namespace Server.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateProduct(Guid productId,
-                           UpdateProductDTO model
-                           )
+        public async Task UpdateProduct(ProductModel model)
         {
-            var product = await _context.Products.FindAsync(productId) ?? throw new ProductExceptions(ProductErrorCode.ProductNotFound, "Product not found");
+            var product = await _context.Products.FindAsync(model.Id) ?? throw new ProductExceptions(ProductErrorCode.ProductNotFound, "Product not found");
 
             var productType = typeof(ProductModel);
-            var dtoType = typeof(UpdateProductDTO);
+            var dtoType = typeof(ProductModel);
 
             foreach (var prop in dtoType.GetProperties())
             {
