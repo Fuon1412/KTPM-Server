@@ -7,7 +7,7 @@ namespace Server.Models.Order
         public Guid Id { get; set; }
         public int Quantity { get; set; }
         public decimal ItemShippingFee { get; set; }
-        public Guid ProductId { get; set; } // Foreign key
-        public Guid OrderId { get; set; } // Foreign key
+        public Guid ProductId { get; set; } //Foreign Key
+        public required ProductModel Product { get; set; }
     }
 }
