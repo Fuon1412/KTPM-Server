@@ -25,7 +25,7 @@ namespace Server.Services
             // Validate products exist first
             foreach (var item in orderDTO.OrderItems)
             {
-                var product = await _productService.GetProductAsync(item.ProductId);
+                var product = await _productService.GetProductAsync(item.Product.Id);
                 if (product == null)
                 {
                     throw new OrderExceptions(OrderErrorCode.ProductNotFound);
@@ -61,16 +61,16 @@ namespace Server.Services
             // Create order items referencing existing products
             foreach (var itemDto in orderDTO.OrderItems)
             {
-                var product = await _productService.GetProductAsync(itemDto.ProductId);
+                var product = await _productService.GetProductAsync(itemDto.Product.Id);
 
                 var itemShippingFee = 9.99m;
                 var orderItem = new OrderItemModel
                 {
                     Id = Guid.NewGuid(),
-                    ProductId = itemDto.ProductId,
-                    OrderId = order.Id,
                     Quantity = itemDto.Quantity,
-                    ItemShippingFee = itemShippingFee
+                    ItemShippingFee = itemShippingFee,
+                    ProductId = product.Id,
+                    Product = product,
                 };
 
                 order.OrderItems.Add(orderItem);
@@ -110,6 +110,7 @@ namespace Server.Services
         {
             var order = await _context.Orders
                                         .Include(o => o.OrderItems)
+                                        .ThenInclude(oi => oi.Product)
                                         .FirstOrDefaultAsync(a => a.Id == orderId);
 
             if (order == null)
@@ -133,7 +134,7 @@ namespace Server.Services
 
         public async Task<List<OrderModel>> GetListOrdersAsync()
         {
-            return await _context.Orders.Include(o => o.OrderItems).ToListAsync();
+            return await _context.Orders.Include(o => o.OrderItems).ThenInclude(oi => oi.Product).ToListAsync();
         }
     }
 }
