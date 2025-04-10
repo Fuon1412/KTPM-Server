@@ -155,10 +155,10 @@ namespace Server.Data
                     orderItems.Add(new OrderItemModel
                     {
                         Id = Guid.NewGuid(),
-                        OrderId = orderId,
-                        ProductId = product.Id,
                         Quantity = quantity,
-                        ItemShippingFee = shippingFee
+                        ItemShippingFee = shippingFee,
+                        ProductId = product.Id,
+                        Product = product
                     });
 
                     itemPrice += price * quantity;
